@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사용자 관리</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="/" class="nav-brand">Method Security Demo</a>
+    <ul class="nav-links">
+      <li><a href="/dashboard">대시보드</a></li>
+      <li><a href="/posts">게시글</a></li>
+      <li><a href="/users">사용자 관리</a></li>
+      <li><a href="/advanced">고급 기능</a></li>
+    </ul>
+    <div class="user-info">
+                <span class="user-badge">
+                    <span sec:authentication="principal.username">사용자</span>
+                    (<span sec:authentication="principal.role">ROLE</span>)
+                </span>
+      <form th:action="@{/logout}" method="post" style="display: inline;">
+        <button type="submit" class="logout-btn">로그아웃</button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<main class="container fade-in">
+  <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+  <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+  <div class="card">
+    <div class="card-header">
+      <h1 class="card-title">사용자 관리</h1>
+      <p class="card-subtitle">@Secured("ROLE_ADMIN")가 적용된 기능</p>
+    </div>
+    <div class="card-body">
+      <div class="alert alert-info">
+        <strong>권한 제어:</strong> 이 페이지는 <code>@Secured("ROLE_ADMIN")</code>로 보호됩니다.
+        ADMIN 권한이 없으면 접근할 수 없습니다.
+      </div>
+
+      <table class="table">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>사용자명</th>
+          <th>이메일</th>
+          <th>역할</th>
+          <th>부서</th>
+          <th>활성 상태</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}">
+          <td th:text="${user.id}"></td>
+          <td th:text="${user.username}"></td>
+          <td th:text="${user.email}"></td>
+          <td>
+            <span class="badge badge-primary" th:text="${user.role}"></span>
+          </td>
+          <td>
+            <span class="badge badge-success" th:text="${user.department}"></span>
+          </td>
+          <td>
+                                <span th:class="${user.enabled ? 'badge badge-success' : 'badge badge-danger'}"
+                                      th:text="${user.enabled ? '활성' : '비활성'}"></span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+</body>
+</html>

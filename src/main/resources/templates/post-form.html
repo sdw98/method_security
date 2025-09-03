@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>새 게시글 작성</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="/" class="nav-brand">Method Security Demo</a>
+    <ul class="nav-links">
+      <li><a href="/dashboard">대시보드</a></li>
+      <li><a href="/posts">게시글</a></li>
+      <li><a href="/users">사용자 관리</a></li>
+      <li><a href="/advanced">고급 기능</a></li>
+    </ul>
+    <div class="user-info">
+      <span class="user-badge">
+        <span sec:authentication="principal.username">사용자</span>
+        (<span sec:authentication="principal.role">ROLE</span>)
+      </span>
+      <form th:action="@{/logout}" method="post" style="display: inline;">
+        <button type="submit" class="logout-btn">로그아웃</button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="card">
+    <div class="card-header">
+      <h2>새 게시글 작성</h2>
+    </div>
+    <div class="card-body">
+      <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+      <form th:action="@{/posts}" method="post">
+        <div class="form-group">
+          <label for="title" class="form-label">제목</label>
+          <input type="text" id="title" name="title" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+          <label for="content" class="form-label">내용</label>
+          <textarea id="content" name="content" class="form-control" rows="10" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">공개 설정</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="isPublic" value="true" checked>
+              <span>공개</span>
+              <small class="text-muted">모든 사용자가 볼 수 있습니다</small>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="isPublic" value="false">
+              <span>비공개</span>
+              <small class="text-muted">작성자와 관리자만 볼 수 있습니다</small>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary">게시글 작성</button>
+          <a href="/posts" class="btn btn-secondary">취소</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+</body>
+</html>

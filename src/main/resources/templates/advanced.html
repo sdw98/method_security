@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>고급 기능</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+  <style>
+    .permission-granted {
+      background-color: #10b981;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+      display: inline-block;
+    }
+    .permission-denied {
+      background-color: #ef4444;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+      display: inline-block;
+    }
+    .feature-card.disabled {
+      opacity: 0.7;
+    }
+    .permission-message-success {
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      background-color: #d1fae5;
+      color: #065f46;
+      border: 1px solid #10b981;
+    }
+    .permission-message-error {
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      background-color: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #ef4444;
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="/" class="nav-brand">Method Security Demo</a>
+    <ul class="nav-links">
+      <li><a href="/dashboard">대시보드</a></li>
+      <li><a href="/posts">게시글</a></li>
+      <li><a href="/users">사용자 관리</a></li>
+      <li><a href="/advanced" class="active">고급 기능</a></li>
+    </ul>
+    <div class="user-info">
+      <span class="user-badge">
+        <span th:text="${currentUser.username}">사용자</span>
+        (<span th:text="${currentUser.role}">ROLE</span>)
+      </span>
+      <form th:action="@{/logout}" method="post" style="display: inline;">
+        <button type="submit" class="logout-btn">로그아웃</button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+  <h1>고급 보안 기능 테스트</h1>
+  <p class="text-muted">각 기능별로 필요한 권한이 다릅니다. 권한이 있는 기능은 초록색, 없는 기능은 빨간색으로 표시됩니다.</p>
+
+  <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+  <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+  <div class="grid">
+    <!-- 민감한 작업 실행 -->
+    <div class="card feature-card" th:classappend="${!canPerformSensitive} ? 'disabled' : ''">
+      <div class="card-header">
+        <h3>민감한 작업 실행
+          <span th:if="${canPerformSensitive}" class="permission-granted">접근 가능</span>
+          <span th:if="${!canPerformSensitive}" class="permission-denied">접근 불가</span>
+        </h3>
+      </div>
+      <div class="card-body">
+        <p>이 작업은 업무 시간(9-17시)에만 실행 가능합니다.</p>
+        <p class="text-muted">필요 권한: ADMIN + 업무 시간</p>
+
+        <div th:if="${canPerformSensitive}" class="permission-message-success">
+          <strong>✅ 권한 확인:</strong>
+          <span>ADMIN 권한이 있습니다. 업무 시간에 실행 가능합니다.</span>
+        </div>
+        <div th:if="${!canPerformSensitive}" class="permission-message-error">
+          <strong>❌ 권한 부족:</strong>
+          <span>ADMIN 권한이 필요합니다.</span>
+        </div>
+
+        <form th:action="@{/advanced/sensitive-operation}" method="post" style="margin-top: 1rem;">
+          <button type="submit" class="btn btn-warning"
+                  th:disabled="${!canPerformSensitive}">민감한 작업 실행</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- HR 기록 접근 -->
+    <div class="card feature-card" th:classappend="${!canAccessHR} ? 'disabled' : ''">
+      <div class="card-header">
+        <h3>HR 기록 접근
+          <span th:if="${canAccessHR}" class="permission-granted">접근 가능</span>
+          <span th:if="${!canAccessHR}" class="permission-denied">접근 불가</span>
+        </h3>
+      </div>
+      <div class="card-body">
+        <p>HR 부서 직원만 접근 가능합니다.</p>
+        <p class="text-muted">필요 권한: HR 부서 소속</p>
+
+        <div th:if="${canAccessHR}" class="permission-message-success">
+          <strong>✅ 권한 확인:</strong>
+          <span>HR 부서 소속입니다. 기록 조회가 가능합니다.</span>
+        </div>
+        <div th:if="${!canAccessHR}" class="permission-message-error">
+          <strong>❌ 권한 부족:</strong>
+          <span>HR 부서 소속이 아닙니다.</span>
+        </div>
+
+        <form th:action="@{/advanced/hr-records}" method="post" style="margin-top: 1rem;">
+          <button type="submit" class="btn btn-info"
+                  th:disabled="${!canAccessHR}">HR 기록 조회</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 프리미엄 기능 -->
+    <div class="card feature-card" th:classappend="${!canAccessPremium} ? 'disabled' : ''">
+      <div class="card-header">
+        <h3>프리미엄 기능
+          <span th:if="${canAccessPremium}" class="permission-granted">접근 가능</span>
+          <span th:if="${!canAccessPremium}" class="permission-denied">접근 불가</span>
+        </h3>
+      </div>
+      <div class="card-body">
+        <p>활성 사용자이면서 게시글을 5개 이상 작성한 사용자만 접근 가능합니다.</p>
+        <p class="text-muted">필요 조건: 활성 사용자 + 게시글 5개 이상</p>
+
+        <div th:if="${canAccessPremium}" class="permission-message-success">
+          <strong>✅ 권한 확인:</strong>
+          <span>프리미엄 사용자입니다. 모든 기능을 사용할 수 있습니다.</span>
+        </div>
+        <div th:if="${!canAccessPremium}" class="permission-message-error">
+          <strong>❌ 권한 부족:</strong>
+          <span>게시글을 5개 이상 작성해야 합니다.</span>
+        </div>
+
+        <form th:action="@{/advanced/premium-feature}" method="post" style="margin-top: 1rem;">
+          <button type="submit" class="btn btn-success"
+                  th:disabled="${!canAccessPremium}">프리미엄 기능 사용</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 현재 사용자 정보 -->
+  <div class="card mt-4">
+    <div class="card-header">
+      <h3>현재 사용자 정보</h3>
+    </div>
+    <div class="card-body">
+      <div class="info-row">
+        <strong>사용자명:</strong> <span th:text="${currentUser.username}">username</span>
+      </div>
+      <div class="info-row">
+        <strong>역할:</strong> <span th:text="${currentUser.role}">ROLE</span>
+      </div>
+      <div class="info-row">
+        <strong>부서:</strong> <span th:text="${currentUser.department}">Department</span>
+      </div>
+      <div class="info-row">
+        <strong>활성 상태:</strong> <span th:text="${currentUser.enabled} ? '활성' : '비활성'">상태</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 직원 기록 표시 영역 (HR 기능 사용 시) -->
+  <div th:if="${employeeRecords != null}" class="card mt-4">
+    <div class="card-header">
+      <h3>직원 기록</h3>
+    </div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>사용자명</th>
+          <th>이메일</th>
+          <th>역할</th>
+          <th>부서</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="employee : ${employeeRecords}">
+          <td th:text="${employee.id}">1</td>
+          <td th:text="${employee.username}">username</td>
+          <td th:text="${employee.email}">email</td>
+          <td th:text="${employee.role}">role</td>
+          <td th:text="${employee.department}">department</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+</body>
+</html>
