@@ -20,6 +20,5 @@ public class CreatePostRequest {
     @Size(min = 1, max = 5000, message = "내용은 1자 이상 5000자 이하여야 합니다")
     private String content;
 
-    @Builder.Default
-    private boolean isPublic = true;
+    private boolean isPublic;
 }

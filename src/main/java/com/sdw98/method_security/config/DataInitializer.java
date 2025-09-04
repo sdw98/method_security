@@ -75,18 +75,20 @@ public class DataInitializer implements CommandLineRunner {
                     .title("공개 게시글")
                     .content("누구나 볼 수 있는 게시글입니다.")
                     .author(admin)
+                    .isPublic(true)
+                    .status(Status.PUBLISHED)
                     .build();
-            publicPost.setPublic(true);
-            publicPost.setStatus(Status.PUBLISHED);
+
             postRepository.save(publicPost);
 
             Post privatePost = Post.builder()
                     .title("비공개 게시글")
                     .content("작성자만 볼 수 있는 게시글입니다.")
                     .author(user)
+                    .isPublic(false)
                     .build();
-            publicPost.setPublic(false);
-            postRepository.save(publicPost);
+
+            postRepository.save(privatePost);
         }
 
 

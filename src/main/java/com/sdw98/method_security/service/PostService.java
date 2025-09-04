@@ -40,9 +40,10 @@ public class PostService {
                 .title(title)
                 .content(content)
                 .author(author)
+                .isPublic(isPublic)
+                .status(isPublic ? Status.PUBLISHED : Status.DRAFT)
                 .build();
-        post.setPublic(isPublic);
-        post.setStatus(isPublic ? Status.PUBLISHED : Status.DRAFT);
+
         return postRepository.save(post);
     }
 

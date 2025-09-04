@@ -26,7 +26,7 @@ import java.util.List;
 public class MainController {
     private final UserService userService;
     private final PostService postService;
-    private AdvancedSecurityService advancedSecurityService;
+    private final AdvancedSecurityService advancedSecurityService;
 
     @GetMapping("/")
     public String home() {
